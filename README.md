@@ -20,10 +20,10 @@ The following repo contains the solution to a Microsoft home work problem.
 
 ```
 az group deployment create \
---name "microsoft-homework" \
+--name "ronenfreemanmshomework" \
 --resource-group "microsoft-homework" \
---template-file "./_output/microsoft-homework/azuredeploy.json" \
---parameters "./_output/microsoft-homework/azuredeploy.parameters.json"
+--template-file "./_output/ronenfreemanmshomework/azuredeploy.json" \
+--parameters "./_output/ronenfreemanmshomework/azuredeploy.parameters.json"
 ```
 
 ## Application
@@ -31,6 +31,11 @@ az group deployment create \
 The application, given three environment variables `BITCOIN_ENDPOINT`, `MINUTES_TO_SLEEP` and `MINUTES_TO_GET_AVERAGE` gets the rate of Bitcoin from `BITCOIN_ENDPOINT` every `MINUTES_TO_SLEEP` minute(s) and averages the rate every MINUTES_TO_GET_AVERAGE minutes.
 
 ### Assumptions
+
+- The app is not statefull. The app will never die.
+- External monitoring exists to capture if the app would throw an error.
+- The first minute to print the Bitcoin rate begins as the app starts up.
+- There is zero delay in getting the rate.
 
 ### Build Locally
 
@@ -51,5 +56,9 @@ To test the built Docker image run:
 `docker run -e BITCOIN_ENDPOINT=https://api.coindesk.com/v1/bpi/currentprice/usd.json -e MINUTES_TO_SLEEP=1 -e MINUTES_TO_GET_AVERAGE=10 <repo-owner>/<repo-name>` 
 
 
+Future Work
 
-
+- Add horizontal pod autoscalling
+- Take into account the delay to fetch the Bitcoin rate and other app processing (to decide how long a minute is between checking for new rates)
+- Add persistence in case the app crashes
+- Ensure quotas are available for node autoscaling
