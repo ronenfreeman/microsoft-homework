@@ -56,7 +56,7 @@ To test the built Docker image run:
 `docker run -e BITCOIN_ENDPOINT=https://api.coindesk.com/v1/bpi/currentprice/usd.json -e MINUTES_TO_SLEEP=1 -e MINUTES_TO_GET_AVERAGE=10 <repo-owner>/<repo-name>` 
 
 
-Future Work
+## Future Work
 
 - Add horizontal pod autoscalling
 - Take into account the delay to fetch the Bitcoin rate and other app processing (to decide how long a minute is between checking for new rates)
