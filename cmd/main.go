@@ -12,12 +12,6 @@ import (
 	"time"
 )
 
-// type Rdf struct {
-// 	XMLName xml.Name `xml:"RDF"` //ignore the smaspace of the tag
-// 	// Channel Channel `xml:"channel"` // we arent using chnanel for  now
-// 	Items []Item `xml:"item"`
-// }
-
 type BitcoinCurrentRate struct {
 	Time struct {
 		Updated    string    `json:"updated"`
@@ -117,6 +111,5 @@ func main() {
 		// we assume there are no delays in getting the rate, so the time to sleep is exactly minutesToSleep
 		time.Sleep(time.Duration(minutesToSleep) * time.Minute)
 		// time.Sleep(time.Duration(minutesToSleep) * time.Second) // use for testing
-
 	}
 }
