@@ -1,0 +1,32 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: service-a
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: service-a
+    spec:
+      containers:
+      - image: ronenfreeman/microsoft-homework:1.0
+        name: service-a
+        imagePullPolicy: Always
+        # ports:
+        # - containerPort: 8080
+        env:
+        - name: BITCOIN_ENDPOINT
+          value: https://api.coindesk.com/v1/bpi/currentprice/usd.json
+        - name: MINUTES_TO_SLEEP
+          value: "1"
+        - name: MINUTES_TO_GET_AVERAGE
+          value: "10"
+        resources:
+          limits:
+            cpu: 400m
+            memory: 1000Mi
+          requests:
+            cpu: 100m
+            memory: 300Mi
+      restartPolicy: Always

@@ -16,6 +16,16 @@ The following repo contains the solution to a Microsoft home work problem.
     a. Please, consider this as process for setting up “production-ready” cluster by all meaning, 1 from 100 that will be created later
     b. Please, share cluster templates and yaml files as GitHub repo / zip file
 
+## Cluster
+
+```
+az group deployment create \
+--name "microsoft-homework" \
+--resource-group "microsoft-homework" \
+--template-file "./_output/microsoft-homework/azuredeploy.json" \
+--parameters "./_output/microsoft-homework/azuredeploy.parameters.json"
+```
+
 ## Application
 
 The application, given three environment variables `BITCOIN_ENDPOINT`, `MINUTES_TO_SLEEP` and `MINUTES_TO_GET_AVERAGE` gets the rate of Bitcoin from `BITCOIN_ENDPOINT` every `MINUTES_TO_SLEEP` minute(s) and averages the rate every MINUTES_TO_GET_AVERAGE minutes.
@@ -39,3 +49,7 @@ To Build the Docker image run:
 To test the built Docker image run:
 
 `docker run -e BITCOIN_ENDPOINT=https://api.coindesk.com/v1/bpi/currentprice/usd.json -e MINUTES_TO_SLEEP=1 -e MINUTES_TO_GET_AVERAGE=10 <repo-owner>/<repo-name>` 
+
+
+
+

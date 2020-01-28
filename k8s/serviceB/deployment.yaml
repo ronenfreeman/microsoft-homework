@@ -1,0 +1,18 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: service-b
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: service-b
+    spec:
+      containers:
+      - image: nginx:1.17.8
+        name: service-b
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+      restartPolicy: Always
