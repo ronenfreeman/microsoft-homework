@@ -34,7 +34,7 @@ type BitcoinCurrentRate struct {
 	} `json:"bpi"`
 }
 
-func initEnv() int {
+func initEnv() (int, int) {
 	log.Println("Verifying env...")
 	if os.Getenv("BITCOIN_ENDPOINT") == "" {
 		log.Fatal("BITCOIN_ENDPOINT not set!")
@@ -42,11 +42,23 @@ func initEnv() int {
 	if os.Getenv("MINUTES_TO_SLEEP") == "" {
 		log.Fatal("MINUTES_TO_SLEEP not set!")
 	}
+	if os.Getenv("MINUTES_TO_GET_AVERAGE") == "" {
+		log.Fatal("MINUTES_TO_GET_AVERAGE not set!")
+	}
 	minutesToSleep, err := strconv.Atoi(os.Getenv("MINUTES_TO_SLEEP"))
 	if err != nil {
 		log.Fatal("Could not convert SECONDS_TO_SLEEP to int")
 	}
-	return minutesToSleep
+	minutesToGetAverage, err := strconv.Atoi(os.Getenv("MINUTES_TO_GET_AVERAGE"))
+	if err != nil {
+		log.Fatal("Could not convert MINUTES_TO_GET_AVERAGE to int")
+	}
+	//ensure minutesToGetAverage is greater than minutesToSleep
+	if minutesToGetAverage <= minutesToSleep {
+		log.Fatal("MINUTES_TO_GET_AVERAGE must be greater than MINUTES_TO_SLEEP")
+	}
+
+	return minutesToSleep, minutesToGetAverage
 
 }
 
@@ -75,21 +87,36 @@ func getCurrentBitcoinRate() (float64, error) {
 	return rate, nil
 }
 func main() {
-	minutesToSleep := initEnv()
-	var ratesArray []float64
-
-	log.Println("Getting Bitcoin prices every minute and the average price every 10 minutes...")
+	minutesToSleep, minutesToGetAverage := initEnv()
+	//increment counter to know when to get average
+	counter := 1
+	var ratesTotal float64
+	stringToLog := fmt.Sprintf("Getting Bitcoin rates every %d minute(s) and the average rate every %d minutes...", minutesToSleep, minutesToGetAverage)
+	log.Println(stringToLog)
 	for {
 		rateFloat, err := getCurrentBitcoinRate()
 		if err != nil {
 			log.Fatal(err)
 		}
-		//append to array of rates
-		ratesArray = append(ratesArray, rateFloat)
-		rateString := fmt.Sprintf("%f", rateFloat) // s == "123.456000"
-
-		log.Println("Current Bitcoin price (USD): " + rateString)
-
+		//append to ratesTotal
+		ratesTotal = ratesTotal + rateFloat
+		rateString := fmt.Sprintf("%f", rateFloat)
+		log.Println("Current Bitcoin rate (USD): " + rateString)
+		// we assume the program wont die ever. so when the array size equals the number of minutes
+		// to calculate the average, calculate the average for all values in the array
+		if counter == minutesToGetAverage {
+			// get average
+			averageRate := ratesTotal / float64(minutesToGetAverage)
+			stringToLog := fmt.Sprintf("Average Bitcoin rate over %d minute(s) (USD): %f", minutesToGetAverage, averageRate)
+			log.Println(stringToLog)
+			// reset counter and ratesTotal total
+			counter = 0
+			ratesTotal = 0
+		}
+		counter++
+		// we assume there are no delays in getting the rate, so the time to sleep is exactly minutesToSleep
 		time.Sleep(time.Duration(minutesToSleep) * time.Minute)
+		// time.Sleep(time.Duration(minutesToSleep) * time.Second) // use for testing
+
 	}
 }
