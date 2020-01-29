@@ -18,12 +18,65 @@ The following repo contains the solution to a Microsoft home work problem.
 
 ## Cluster
 
+See aks-engine examples on how to `secrets/kubernetes.json`. Generate arm templates:
+
+```
+aks-engine generate secrets/kubernetes.json
+```
+
+Deploy:
+
 ```
 az group deployment create \
 --name "ronenfreemanmshomework" \
 --resource-group "microsoft-homework" \
 --template-file "./_output/ronenfreemanmshomework/azuredeploy.json" \
 --parameters "./_output/ronenfreemanmshomework/azuredeploy.parameters.json"
+```
+
+## DNS
+
+Get ingress controller lb ip (13.77.181.241) ID:
+
+```
+PUBLIC_IP_ID=$(az network public-ip list --query "[?ipAddress=='13.77.181.241].id" -o tsv)
+```
+Create zone:
+
+```
+az network dns zone create \
+  --resource-group microsoft-homework \
+  --name ronenfreemanmshomework.io
+```
+Create record:
+```
+az network dns record-set a add-record \
+    --resource-group microsoft-homework \
+    --record-set-name "@" \
+    --zone-name ronenfreemanmshomework.io \
+    --ipv4-address 13.77.181.241
+```
+Update recode:
+```
+az network dns record-set a update --name @ \
+  --resource-group microsoft-homework \
+  --zone-name ronenfreemanmshomework.io \
+  --target-resource $PUBLIC_IP_ID
+```
+```
+az network dns record-set a add-record \
+    --resource-group microsoft-homework \
+    --zone-name ronenfreemanmshomework.io \
+    --record-set-name www \
+    --ipv4-address 13.77.181.241
+```
+
+Query nameservers:
+```
+az network dns zone show \
+  --resource-group microsoft-homework  \
+  --name ronenfreemanmshomework.io \
+  --query nameServers
 ```
 
 ## Application
@@ -62,3 +115,8 @@ To test the built Docker image run:
 - Take into account the delay to fetch the Bitcoin rate and other app processing (to decide how long a minute is between checking for new rates)
 - Add persistence in case the app crashes
 - Ensure quotas are available for node autoscaling
+
+
+## Problems:
+- quotas. Had to use cloud shell to see
+- Network policy didnt allow routing from nginx controller. label namespace
